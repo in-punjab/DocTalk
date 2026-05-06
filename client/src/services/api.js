@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const API = axios.create({
-  baseURL: "https://doctalk-q416.onrender.com",
+  baseURL: "https://doctalk-q416.onrender.com/upload",
 });
 
 export const uploadPDF = (file) => {

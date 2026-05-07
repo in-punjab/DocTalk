@@ -1,193 +1,192 @@
-# 🚀 DocTalk — Chat with Your Documents using AI
+# DocTalk — Chat with Your Documents
 
-DocTalk is a full-stack AI-powered application that allows users to upload PDFs and interact with them conversationally. It uses a Retrieval-Augmented Generation (RAG) pipeline to deliver accurate, context-aware responses grounded in document content.
+> AI-powered document Q&A using a full RAG pipeline
 
-## Live Demo: doc-talk-qgbmtgbbw-in-punjabs-projects.vercel.app
-
----
-
-## 🧠 Core Idea
-
-> Upload PDFs → Convert text into embeddings → Store in vector DB → Ask questions → Get AI responses based on your document
+**Live Demo:** [doc-talk-qgbmtgbbw-in-punjabs-projects.vercel.app](https://doc-talk-qgbmtgbbw-in-punjabs-projects.vercel.app)
 
 ---
 
-## ✨ Features
+## What is DocTalk?
 
-* 📄 Upload and process PDF documents
-* 🧠 AI-powered question answering (RAG pipeline)
-* 🔍 Semantic search using vector embeddings
-* 💬 Real-time chat interface
-* 📚 Source attribution (see supporting document chunks)
-* 🌙 Modern ChatGPT-like UI (React + Tailwind)
-* ⚡ Fast similarity search using pgvector
+DocTalk lets you upload any PDF and have a natural conversation with it. Under the hood, it runs a complete **Retrieval-Augmented Generation (RAG)** pipeline — your document is chunked, embedded into vectors, stored in a PostgreSQL database, and retrieved semantically at query time to ground the LLM's response in real content.
+
+No hallucinations. No guessing. Just answers from your document.
 
 ---
 
-## 🏗️ Tech Stack
+## Features
 
-### Frontend
-
-* React (Vite)
-* Tailwind CSS
-* Axios
-
-### Backend
-
-* Node.js
-* Express.js
-* Multer (memory storage for production-safe uploads)
-* pdf-parse
-
-### AI & Data
-
-* Gemini API → Embeddings
-* Groq API → Chat completion (LLM responses)
-* PostgreSQL (Supabase)
-* pgvector → Vector similarity search
-
-### Deployment
-
-* Frontend → Vercel
-* Backend → Render
-* Database → Supabase
+- Upload and process PDF documents
+- AI-powered Q&A using a RAG pipeline
+- Semantic search via vector embeddings (pgvector)
+- Real-time chat interface with ChatGPT-like UX
+- Source attribution — see the exact chunks the answer came from
+- Clean, responsive UI built with React + Tailwind CSS
+- Fast similarity search using PostgreSQL + pgvector
 
 ---
 
-## 🧩 System Architecture (RAG Pipeline)
+## Tech Stack
 
-```id="arch1"
-User Uploads PDF
-        ↓
-Text Extraction (pdf-parse)
-        ↓
-Chunking (overlapping text)
-        ↓
-Embeddings (Gemini API)
-        ↓
-Store in PostgreSQL (pgvector)
-        ↓
+| Layer | Technology |
+|-------|-----------|
+| Frontend | React (Vite), Tailwind CSS, Axios |
+| Backend | Node.js, Express.js, Multer, pdf-parse |
+| Embeddings | Gemini API |
+| LLM | Groq API |
+| Database | PostgreSQL via Supabase + pgvector |
+| Deployment | Vercel (frontend), Render (backend), Supabase (DB) |
+
+---
+
+## RAG Pipeline
+
+```
+PDF Upload
+    → Text Extraction       (pdf-parse)
+    → Chunking              (overlapping sliding window)
+    → Embedding             (Gemini Embeddings API)
+    → Vector Storage        (PostgreSQL + pgvector)
+
 User Question
-        ↓
-Query Embedding (Gemini)
-        ↓
-Similarity Search (Top-K chunks)
-        ↓
-Context + Question
-        ↓
-Groq LLM (Chat Response)
-        ↓
-Answer + Sources
+    → Query Embedding       (Gemini)
+    → Similarity Search     (Top-K chunks via pgvector)
+    → Context + Prompt      (injected into LLM)
+    → Groq LLM Response
+    → Answer + Sources      (returned to user)
 ```
 
 ---
 
-## ⚙️ Installation & Setup
+## Getting Started
 
-### 1️⃣ Clone Repository
+### 1. Clone the repository
 
-```bash id="git1"
+```bash
 git clone https://github.com/YOUR_USERNAME/doctalk.git
 cd doctalk
 ```
 
----
+### 2. Set up the backend
 
-### 2️⃣ Backend Setup
-
-```bash id="back1"
+```bash
 cd server
 npm install
 ```
 
-Create `.env` file:
+Create a `.env` file in the `server/` directory:
 
-```env id="env1"
+```env
 PORT=5000
-
 GEMINI_API_KEY=your_gemini_key
 GROQ_API_KEY=your_groq_key
-
 SUPABASE_URL=your_supabase_url
 SUPABASE_KEY=your_supabase_key
 ```
 
-Run backend:
+Start the dev server:
 
-```bash id="run1"
+```bash
 npm run dev
 ```
 
----
+### 3. Set up the frontend
 
-### 3️⃣ Frontend Setup
-
-```bash id="front1"
+```bash
 cd client
 npm install
 npm run dev
 ```
 
+> Update the API base URL in `client/src/services/api.js` before deploying.
+
 ---
 
-## 🌐 Deployment
+## Usage
 
-* Frontend deployed on Vercel
-* Backend deployed on Render
-* Database hosted on Supabase
+1. Open the app and upload a PDF
+2. Wait for processing (text extraction → embedding → storage)
+3. Ask any question about your document in the chat
+4. View the AI response alongside the source chunks it referenced
 
-Update API base URL:
+---
 
-```bash id="api1"
-client/src/services/api.js
+## Architecture Decisions
+
+**Why Gemini for embeddings + Groq for inference?**
+Gemini's `text-embedding-004` model produces high-quality dense vectors well-suited for semantic search. Groq's inference is fast (low latency LLM calls) — separating embedding and generation lets us optimize each independently.
+
+**Why pgvector over a dedicated vector DB?**
+Keeping vectors in PostgreSQL via Supabase reduces infrastructure complexity. For the scale this project targets, pgvector's HNSW index gives excellent similarity search performance without adding a separate service like Pinecone or Weaviate.
+
+**Why memory storage for file uploads (Multer)?**
+Render's ephemeral filesystem means disk writes don't persist across deploys. Using Multer's in-memory storage keeps uploads stateless and production-safe.
+
+---
+
+## Challenges & What I Learned
+
+- **Large PDF ingestion** — chunking strategy matters a lot. Overlapping chunks prevent context from being split across boundaries.
+- **pgvector setup** — enabling the extension in Supabase and writing the cosine similarity query required careful schema design.
+- **Cloud file handling** — disk storage works locally but breaks on Render; switching to memory storage fixed production upload failures.
+- **API debugging** — managing two external APIs (Gemini + Groq) with proper error handling and rate limit awareness in the same request lifecycle.
+- **Tailwind + Vite config** — PostCSS config conflicts required careful resolution during initial setup.
+
+---
+
+## Roadmap
+
+- [ ] Multi-document support with document-level filtering
+- [ ] JWT / OAuth authentication
+- [ ] Streaming responses (real-time token streaming)
+- [ ] Chat history persistence per user/session
+- [ ] Highlight matching source text in the PDF viewer
+- [ ] Drag & drop upload with progress indicator
+
+---
+
+## Project Structure
+
+```
+doctalk/
+├── client/                  # React frontend
+│   ├── src/
+│   │   ├── components/      # Chat UI, upload, source viewer
+│   │   ├── services/        # Axios API client
+│   │   └── App.jsx
+│   └── vite.config.js
+│
+├── server/                  # Express backend
+│   ├── routes/              # Upload + query endpoints
+│   ├── utils/               # PDF parsing, chunking, embedding
+│   ├── db/                  # pgvector queries
+│   └── index.js
+│
+└── README.md
 ```
 
 ---
 
-## 🧪 Usage
+## Local Development Notes
 
-1. Upload a PDF
-2. Wait for processing (embedding + storage)
-3. Ask questions in chat
-4. View answers with source context
-
----
-
-## 🧠 Key Concepts Used
-
-* Retrieval-Augmented Generation (RAG)
-* Vector Embeddings (Gemini)
-* Semantic Search (pgvector)
-* Context Injection into LLM (Groq)
-* Chunking Strategy with Overlap
-* Full-stack Deployment
+- Backend runs on `http://localhost:5000`
+- Frontend proxies API calls via Vite config
+- Make sure pgvector extension is enabled in your Supabase project (`CREATE EXTENSION vector;`)
+- Gemini and Groq both require free API keys — links in `.env` comments
 
 ---
 
-## 🚧 Challenges Faced
+## Contributing
 
-* Handling large PDF ingestion efficiently
-* Implementing vector similarity search in PostgreSQL
-* Fixing file upload issues in cloud (memory vs disk storage)
-* Debugging production errors (500 / 404 on Render)
-* Tailwind + Vite configuration issues
-* Managing API integrations (Gemini + Groq)
+Pull requests are welcome. For major changes, open an issue first to discuss what you'd like to change.
 
 ---
 
-## 📈 Future Improvements
+## License
 
-* Multi-document support (document-level filtering)
-* Authentication system (JWT / OAuth)
-* Chat history persistence
-* Streaming responses (real-time typing like ChatGPT)
-* Highlight relevant text in sources
-* Drag & drop upload UI
+MIT
 
 ---
 
-## ⭐ Support
-
-If you found this project useful, consider giving it a ⭐ on GitHub.
-
----
+*Built with Node.js, React, PostgreSQL, and the Gemini + Groq APIs.*  
+*If this helped you understand RAG pipelines, consider giving it a ⭐*

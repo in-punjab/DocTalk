@@ -2,7 +2,7 @@ export async function getEmbedding(text) {
   const apiKey = process.env.GEMINI_API_KEY;
 
   const response = await fetch(
-    `https://generativelanguage.googleapis.com/v1beta/models/gemini-embedding-2:embedContent?key=${apiKey}`,
+    `https://generativelanguage.googleapis.com/v1beta/models/gemini-embedding-004:embedContent?key=${apiKey}`,
     {
       method: "POST",
       headers: { "Content-Type": "application/json" },

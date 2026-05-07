@@ -27,10 +27,11 @@ No hallucinations. No guessing. Just answers from your document.
 ---
 
 ## Screenshots
-![App Screenshots](<img width="1920" height="912" alt="Image" src="https://github.com/user-attachments/assets/769d0123-f31a-4d2b-8bf0-3773231f38df" />)
-![App Screenshots](<img width="1920" height="900" alt="Image" src="https://github.com/user-attachments/assets/52876ef0-b673-4c7a-831e-404dfe9e99d6" />)
-![App Screenshots](<img width="1920" height="897" alt="Image" src="https://github.com/user-attachments/assets/71ab4a5b-747f-45e5-8691-a4b4cd546443" />)
-![App Screenshots](<img width="1920" height="902" alt="Image" src="https://github.com/user-attachments/assets/f2a7df88-df05-492a-be18-acbdfb2fdee0" />)
+
+![Interface](./assets/screenshots/Interface.png)
+![Upload Option](./assets/screenshots/Upload.png)
+![Uploaded](./assets/screenshots/Uploaded.png)
+![Chat](./assets/screenshots/Chat.png)
 
 ---
 
